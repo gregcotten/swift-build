@@ -234,13 +234,6 @@ $SDKArchs = @($SDKs | ForEach-Object {
 })
 
 # Build functions
-function Invoke-BuildStep([string]$Name) {
-  & $Name @Args
-  if ($Name.Replace("Build-", "") -eq $BuildTo) {
-    exit 0
-  }
-}
-
 function Get-ProjectBinaryCache($Arch, $ID) {
   return "$BinaryCache\" + ($Arch.BuildID + $ID)
 }
