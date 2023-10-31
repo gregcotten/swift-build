@@ -234,6 +234,13 @@ $SDKArchs = @($SDKs | ForEach-Object {
 })
 
 # Build functions
+function Invoke-BuildStep([string]$Name) {
+  & $Name @Args
+  if ($Name.Replace("Build-", "") -eq $BuildTo) {
+    exit 0
+  }
+}
+
 function Get-ProjectBinaryCache($Arch, $ID) {
   return "$BinaryCache\" + ($Arch.BuildID + $ID)
 }
@@ -1564,10 +1571,9 @@ function Build-Installer() {
 
   Isolate-EnvVars {
     Invoke-VsDevShell $HostArch
-    $VCRedistInstallerPath = "${env:VCToolsRedistDir}\vc_redist.$($HostArch.ShortName).exe"
-    if (Test-Path $VCRedistInstallerPath) {
-      $Properties["VCRedistInstaller"] = $VCRedistInstallerPath
-      $Properties["VSVersion"] = $env:VSCMD_VER
+    $VCRedistDir = (Get-ChildItem "${env:VCToolsRedistDir}\$($HostArch.ShortName)" -Filter "Microsoft.VC*.CRT").FullName
+    if ($VCRedistDir) {
+      $Properties["VCRedistDir"] = "$VCRedistDir\"
     }
   }
 
